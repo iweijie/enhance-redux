@@ -1,2 +1,10 @@
 # enhance-redux
-仿dva的方式，使用 redux
+
+## 安装
+
+```
+npm install --save @iweijie/enhance-redux
+```
+
+## 使用
+

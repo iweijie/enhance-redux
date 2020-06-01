@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   namespace: "list",
   state: {
     list: [],

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   namespace: "common",
   state: {
     version: "0.0.1",
@@ -8,8 +8,8 @@ export default {
     like: "",
     hobby: "",
     getStateValue: {
-      value:"我是值",
-    }
+      value: "我是值",
+    },
   },
   reducers: {
     handleChangeUserInfo({ state, rootState }, payload) {
@@ -39,8 +39,8 @@ export default {
       return payload;
     },
     checkGetState({ getState }, payload) {
-      const value =   getState(payload)
-      return value
+      const value = getState(payload);
+      return value;
     },
   },
 };

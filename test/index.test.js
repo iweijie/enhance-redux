@@ -1,10 +1,9 @@
 const enhanceRedux = require("../lib/index").default;
-const common = require("./model/common").default;
-const list = require("./model/list").default;
+const common = require("./model/common");
+const list = require("./model/list");
 
-describe("基础配置测试", function () {
-
-  /**    modal   */
+describe("基础测试", function () {
+  /**    model   */
 
   test("设置model；获取设置的默认值", function () {
     const { store, reducers, register, unRegister } = enhanceRedux([
@@ -16,6 +15,27 @@ describe("基础配置测试", function () {
     expect(state.common.userInfo).toEqual({
       name: "default",
     });
+  });
+
+  test("动态注册 model；获取设置的默认值", function () {
+    const { store, reducers, register, unRegister } = enhanceRedux();
+    const { dispatch, getState } = store;
+    register(common);
+    const state = getState();
+    expect(state.common.userInfo).toEqual({
+      name: "default",
+    });
+  });
+
+  test("动态移除 model；获取值，抛出错误", function () {
+    const { store, reducers, register, unRegister } = enhanceRedux([
+      common,
+      list,
+    ]);
+    const { dispatch, getState } = store;
+    unRegister("common");
+    const state = getState();
+    expect(state.common).toBe(undefined);
   });
 
   /**   effect    */
@@ -55,7 +75,6 @@ describe("基础配置测试", function () {
       });
   });
 
-  
   test("测试 effect getState 方法", function () {
     const { store, reducers, register, unRegister } = enhanceRedux([
       common,
@@ -63,10 +82,10 @@ describe("基础配置测试", function () {
     ]);
     const { dispatch, getState } = store;
 
-    expect(reducers.common.checkGetState('common/getStateValue/value')).toBe('我是值');
+    expect(reducers.common.checkGetState("common/getStateValue/value")).toBe(
+      "我是值"
+    );
   });
-  
-
 
   /**   reducers    */
 
@@ -91,10 +110,10 @@ describe("基础配置测试", function () {
       name: "testName",
     });
 
-    const data1 = getState()
+    const data1 = getState();
 
     expect(data).toBe(data1.common);
-  })
+  });
 
   /**   redux--dispatch    */
 
@@ -114,6 +133,4 @@ describe("基础配置测试", function () {
 
     expect(state.common.hobby).toBe("weijie");
   });
-
-})
-
+});

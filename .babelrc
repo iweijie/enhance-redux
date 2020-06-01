@@ -8,5 +8,11 @@
                 }
             }
         ]
-    ]
+    ],
+    "plugins": [
+        [
+            "@babel/plugin-transform-runtime"
+        ]
+    ],
+    "comments": false
 }

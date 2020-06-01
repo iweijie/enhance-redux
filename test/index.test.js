@@ -3,7 +3,10 @@ const common = require("./model/common").default;
 const list = require("./model/list").default;
 
 describe("基础配置测试", function () {
-  test("获取model的默认值", function () {
+
+  /**    modal   */
+
+  test("设置model；获取设置的默认值", function () {
     const { store, reducers, register, unRegister } = enhanceRedux([
       common,
       list,
@@ -15,7 +18,9 @@ describe("基础配置测试", function () {
     });
   });
 
-  test("model -- effect --  设置用户名", function () {
+  /**   effect    */
+
+  test("测试 effect call 方法 设置用户名", function () {
     const { store, reducers, register, unRegister } = enhanceRedux([
       common,
       list,
@@ -50,13 +55,28 @@ describe("基础配置测试", function () {
       });
   });
 
+  
+  test("测试 effect getState 方法", function () {
+    const { store, reducers, register, unRegister } = enhanceRedux([
+      common,
+      list,
+    ]);
+    const { dispatch, getState } = store;
+
+    expect(reducers.common.checkGetState('common/getStateValue/value')).toBe('我是值');
+  });
+  
+
+
+  /**   reducers    */
+
   test("model -- reducers --  修改version", function () {
     const { store, reducers, register, unRegister } = enhanceRedux([
       common,
       list,
     ]);
     const { dispatch, getState } = store;
-    const data = reducers.common.handleChangeVersion("0.0.2");
+    reducers.common.handleChangeVersion("0.0.2");
     const state = getState();
     expect(state.common.version).toBe("0.0.2");
   });
@@ -71,15 +91,14 @@ describe("基础配置测试", function () {
       name: "testName",
     });
 
-    expect(data).toEqual({
-      version: "0.0.1",
-      userInfo: { name: "testName" },
-      like: "",
-      hobby: "",
-    });
-  });
+    const data1 = getState()
 
-  test("model -- dispatch --  redux-dispatch", function () {
+    expect(data).toBe(data1.common);
+  })
+
+  /**   redux--dispatch    */
+
+  test("测试 redux dispatch 方法", function () {
     const { store, reducers, register, unRegister } = enhanceRedux([
       common,
       list,
@@ -88,23 +107,13 @@ describe("基础配置测试", function () {
 
     dispatch({
       type: "common/hobby",
-      payload: "jie",
+      payload: "weijie",
     });
 
     const state = getState();
 
-    expect(state.common.hobby).toBe("jie");
+    expect(state.common.hobby).toBe("weijie");
   });
 
-  test("model -- dispatch --  其他方法", function () {
-    const { store, reducers, register, unRegister } = enhanceRedux([
-      common,
-      list,
-    ]);
-    const { dispatch, getState } = store;
+})
 
-    const data = dispatch({ test: true });
-
-    expect(data).toEqual({ test: true });
-  });
-});

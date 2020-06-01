@@ -7,6 +7,9 @@ export default {
     },
     like: "",
     hobby: "",
+    getStateValue: {
+      value:"我是值",
+    }
   },
   reducers: {
     handleChangeUserInfo({ state, rootState }, payload) {
@@ -34,6 +37,10 @@ export default {
     async setLike({ push }, payload) {
       push("common/like", payload);
       return payload;
+    },
+    checkGetState({ getState }, payload) {
+      const value =   getState(payload)
+      return value
     },
   },
 };

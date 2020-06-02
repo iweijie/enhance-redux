@@ -61,9 +61,9 @@ import common form "./common";
 const models = [common];
 
 /**
- * enhancer : redux 插件；
+ * enhancer : redux 插件；（PS：暂未测试）
  * reducer ：自定义 reducer 处理方法函数
- * separator：字段分隔符，默认 "/"
+ * separator：自定义字段分隔字符，默认 "/"
 */
 
 const option = {
@@ -72,7 +72,7 @@ const option = {
   // separator
 }
 
-const { store, reducers, register, unRegister } = enhanceRedux(, option);
+const { store, reducers, register, unRegister } = enhanceRedux(models, option);
 
 ```
 

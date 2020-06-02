@@ -90,13 +90,13 @@ import App form "./App";
 
 ```javascript
 /** App.js  结合 react-redux 使用 */
-import React, { useEffact } form 'react';
+import React, { useEffect } form 'react';
 import { reducers } form "./store"
 import { connect } from "react-redux";
 
 const App = (props)=> {
     const {version, changeVersion} = props;
-    useEffact(()=>{
+    useEffect(()=>{
         changeVersion('0.0.2')
     },[])
     return <div>{version}</div>

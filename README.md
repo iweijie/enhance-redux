@@ -77,16 +77,6 @@ const { store, reducers, register, unRegister } = enhanceRedux(, option);
 ```
 
 ```javascript
-/** store.js */
-
-import enhanceRedux form 'enhance-redux';
-import common form "./common";
-
-const { store, reducers, register, unRegister } = enhanceRedux([common]);
-
-```
-
-```javascript
 /** main.js */
 import React form 'react';
 import common form "./store";

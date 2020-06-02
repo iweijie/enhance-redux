@@ -1,4 +1,4 @@
-const enhanceRedux = require("../lib/index").default;
+const enhanceRedux = require("../src/index").default;
 const common = require("./model/common");
 const list = require("./model/list");
 

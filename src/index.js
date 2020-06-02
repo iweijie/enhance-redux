@@ -220,12 +220,12 @@ function enhanceRedux(models = [], options = {}) {
   // react-redux  connect  第二个参数传对象时，会再被dispatch包裹一次
   // action 会为空时；做下错误处理
   function defaultReduce(state = {}, action = {}) {
+    // type不存在 或者 redux内部的分发直接返回 state
+    if (!action || !action.type || isReduxPrimitiveType(type)) return state;
     if (!isProduction) {
       checkType({ state, action, separator });
     }
     const { type, payload } = action;
-    // type不存在 或者 redux内部的分发直接返回 state
-    if (!type || isReduxPrimitiveType(type)) return state;
     // model 新增 or  移除
     if (type === IS_ENHANCE_REDUX_MODEL_ADDORREMOVE) {
       return payload;

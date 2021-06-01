@@ -14,13 +14,19 @@ import {
 } from "./namespace";
 import { checkModel, checkType, isSame } from "./check";
 import { createStore, applyMiddleware } from "redux";
+import merge from "lodash/merge";
+import noop from "lodash/noop";
 
 function enhanceRedux(models = [], options = {}) {
-  let { enhancer = [], reducer, separator = NAMESPACE_SEP } = options;
+  let {
+    enhancer = [],
+    reducer,
+    states: initStates,
+    separator = NAMESPACE_SEP,
+  } = options;
   const REGISTERED_NAMESPACE = {};
   const decorateReducers = {};
   const primevalReducer = {};
-  let states = {};
   let store;
   //   redux 原生 dispatch
   let reduxDispatch;
@@ -29,25 +35,26 @@ function enhanceRedux(models = [], options = {}) {
   //   redux 原生 replaceReducer
   // let replaceReducer;
 
+  let states = {};
   /**
    * 自定义 dispatch 函数； 用于分发拦截
    * @param {object} action
    */
 
   function dispatch(action) {
-    // 自定义 call 函数
-    if (action && action[IS_ENHANCE_REDUX_CALL]) {
-      let { type, payload } = action;
+    if (isObject(action) && action.type) {
+      let { type, payload, ...other } = action;
       try {
         const [namespace, key] = type.split(separator);
         const callHandle = decorateReducers[namespace][key];
-        return callHandle(payload);
+
+        if (callHandle && typeof callHandle === "function")
+          return callHandle(payload, other);
+
+        return reduxDispatch(action);
       } catch (err) {
         console.error(err);
       }
-      // 正常 dispatch 事件分发
-    } else if (isObject(action) && action.type) {
-      return reduxDispatch(action);
     } else {
       // 其他； 如：bindActionCreators 包裹后的方法
       return action;
@@ -59,7 +66,7 @@ function enhanceRedux(models = [], options = {}) {
    */
 
   function decorateReducer(namespace, key, reducerHandle, type) {
-    const anonymous = (...payload) => {
+    const anonymous = (payload, other) => {
       if (!isProduction) {
         print(`${type}--  ${namespace}${separator}${key}`);
       }
@@ -69,7 +76,8 @@ function enhanceRedux(models = [], options = {}) {
           state: state[namespace],
           rootState: state,
         },
-        ...payload
+        payload,
+        other
       );
       reduxDispatch({
         type: namespace,
@@ -87,7 +95,7 @@ function enhanceRedux(models = [], options = {}) {
    */
 
   function decorateEffect(namespace, key, effect, type) {
-    const anonymous = (payload) => {
+    const anonymous = (payload, other) => {
       if (!isProduction) {
         print(`${type} --- ${namespace}${separator}${key}`);
       }
@@ -95,7 +103,7 @@ function enhanceRedux(models = [], options = {}) {
       return effect(
         {
           call: call(namespace, key),
-          push: push(namespace, key),
+          put: put(namespace, key),
           getState: (namespace) => {
             const state = getState();
             if (!namespace) return state;
@@ -112,7 +120,8 @@ function enhanceRedux(models = [], options = {}) {
           state: state[namespace],
           rootState: state,
         },
-        payload
+        payload,
+        other
       );
     };
     anonymous[IS_ENHANCE_REDUX_REDUCER] = type;
@@ -138,11 +147,9 @@ function enhanceRedux(models = [], options = {}) {
       // 检测 model 的结构是否符合 ，以及是否重复注册
       checkModel(model, REGISTERED_NAMESPACE);
     }
-    const { namespace, state = {}, reducers = {}, effects = {} } = model;
-
-    // const states = getState();
+    const { namespace, state = noop, reducers = {}, effects = {} } = model;
     // 初始化state 赋值
-    states[namespace] = state;
+    states[namespace] = state();
     // 获取 reducer
     if (isObject(reducers)) {
       Object.keys(reducers).forEach((key) => {
@@ -209,19 +216,16 @@ function enhanceRedux(models = [], options = {}) {
     };
   }
   // origin, oneType
-  function push() {
-    return (namespace, payload) =>
-      dispatch({
-        type: namespace,
-        payload,
-      });
+  function put(namespace, key) {
+    return (action) => reduxDispatch(action);
   }
 
   // react-redux  connect  第二个参数传对象时，会再被dispatch包裹一次
   // action 会为空时；做下错误处理
   function defaultReduce(state = {}, action = {}) {
     // type不存在 或者 redux内部的分发直接返回 state
-    if (!action || !action.type || isReduxPrimitiveType(type)) return state;
+    if (!action || !action.type || isReduxPrimitiveType(action.type))
+      return state;
     if (!isProduction) {
       checkType({ state, action, separator });
     }
@@ -257,6 +261,7 @@ function enhanceRedux(models = [], options = {}) {
   models = models.filter(isObject);
 
   models.forEach(registerModel);
+  states = merge(states, initStates);
 
   store = createStore(
     reducer || defaultReduce,

@@ -6,7 +6,8 @@ function isAllFunction(obj) {
 }
 
 export function checkModel(model, registeredNamespace = {}) {
-  const { namespace, reducers = {}, effects = {} } = model;
+  const { namespace, reducers = {}, effects = {}, state } = model;
+  warning(typeof state === "function", `state 需为函数`);
   warning(
     !registeredNamespace[model.namespace],
     `namespace：${model.namespace} 以注册，请勿重复注册`
@@ -19,12 +20,12 @@ export function checkModel(model, registeredNamespace = {}) {
 }
 
 export function checkType({ state, action, separator }) {
-  if (action && (action.type === DISPATCH_PUSH_TYPE) || ( action || action.type)) return;
+  if ((action && action.type === DISPATCH_PUSH_TYPE) || action || action.type)
+    return;
   warning(action && action.type, "action需包含type字段");
   const { type } = action;
   if (isReduxPrimitiveType(type)) return;
   const namespaceList = type.split(separator);
-  console.log("namespaceList:",namespaceList,namespaceList)
   warning(state[namespaceList[0]], `namespace -- ${namespaceList[0]} 未注册`);
 }
 
